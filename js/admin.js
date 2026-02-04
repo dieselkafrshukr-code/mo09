@@ -19,6 +19,17 @@ auth.onAuthStateChanged(user => {
     }
 });
 
+// Logout Helper
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signOut().then(() => {
+            window.location.reload();
+        });
+    });
+}
+
 // Login Handler
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -26,6 +37,8 @@ if (loginForm) {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         try {
+            // Force re-login on every refresh by setting persistence to NONE
+            await auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
             await auth.signInWithEmailAndPassword(email, password);
         } catch (error) {
             alert("خطأ في تسجيل الدخول: " + error.message);

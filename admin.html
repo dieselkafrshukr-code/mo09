@@ -535,14 +535,16 @@
                 <img src="https://via.placeholder.com/100?text=LOGO" alt="Logo">
             </div>
             <h2>دخول لوحة التحكم</h2>
-            <form id="login-form">
+            <form id="login-form" autocomplete="off">
                 <div class="input-wrapper">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="login-email" class="login-input" placeholder="البريد الإلكتروني" required>
+                    <input type="email" id="login-email" class="login-input" placeholder="البريد الإلكتروني" required
+                        autocomplete="off">
                 </div>
                 <div class="input-wrapper">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="login-password" class="login-input" placeholder="كلمة المرور" required>
+                    <input type="password" id="login-password" class="login-input" placeholder="كلمة المرور" required
+                        autocomplete="new-password">
                 </div>
                 <button type="submit" class="login-btn">تسجيل الدخول</button>
                 <div style="margin-top: 1.5rem;">
