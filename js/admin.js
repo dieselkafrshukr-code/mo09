@@ -229,14 +229,34 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
-            statusText.innerText = "جاري الرفع...";
+            statusText.innerText = "جاري معالجة الصورة...";
             const file = fileInput.files[0];
-            const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
 
-            // رفع مباشر بدون مراقبة النسبة للتأكد من عدم التعليق
-            const snapshot = await storageRef.put(file);
-            imageUrl = await snapshot.ref.getDownloadURL();
-            statusText.innerText = "تم الرفع بنجاح!";
+            // تحويل الصورة لنص (Base64) بجودة ممتازة وحجم صغير
+            imageUrl = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600; // حجم مثالي للموبايل والويب
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6)); // ضغط 60% لسرعة التحميل
+                    };
+                };
+            });
+            statusText.innerText = "تمت المعالجة!";
         }
 
         if (!imageUrl && !id) {
