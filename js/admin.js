@@ -179,6 +179,37 @@ function renderAdminProducts() {
     });
 }
 
+// Helper to Compress Image
+async function compressImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1000;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.7); // 70% quality
+            };
+        };
+    });
+}
+
 document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('p-id').value;
@@ -199,9 +230,11 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
-            const file = fileInput.files[0];
-            const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
-            const uploadTask = storageRef.put(file);
+            statusText.innerText = "جاري تحضير الصورة...";
+            const compressedBlob = await compressImage(fileInput.files[0]);
+
+            const storageRef = storage.ref(`products/${Date.now()}.jpg`);
+            const uploadTask = storageRef.put(compressedBlob);
 
             await new Promise((resolve, reject) => {
                 uploadTask.on('state_changed',
@@ -210,7 +243,8 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
                         statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
                     },
                     (error) => {
-                        alert("خطأ في رفع الصورة: " + error.message);
+                        console.error("Upload error:", error);
+                        alert("حدث خطأ أثناء الرفع! تأكد من تفعيل Storage في Firebase: " + error.message);
                         reject(error);
                     },
                     async () => {
