@@ -71,6 +71,144 @@ nav.scrolled {
     letter-spacing: 2px;
 }
 
+/* Luxury Modal Redesign */
+.product-detail-card {
+    background: #0f0f0f;
+    border: 1px solid rgba(230, 57, 70, 0.2);
+    border-radius: 30px;
+    padding: 2.5rem;
+    width: 95%;
+    max-width: 800px !important;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
+}
+
+.product-detail-flex {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.product-detail-img {
+    flex: 1;
+}
+
+.product-detail-img img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.product-detail-info {
+    flex: 1.2;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.product-detail-info h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.p-desc {
+    color: var(--text-gray);
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.variant-section label {
+    display: block;
+    margin-bottom: 15px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.size-options {
+    display: flex;
+    gap: 12px;
+}
+
+.size-btn {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.size-btn.active {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+}
+
+.price-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.p-price {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent-red);
+}
+
+.add-to-cart-btn {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.add-to-cart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(230, 57, 70, 0.4);
+}
+
+@media (max-width: 768px) {
+    .product-detail-flex {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .product-detail-card {
+        padding: 1.5rem;
+        margin: 10px;
+        overflow-y: auto;
+        max-height: 90vh;
+    }
+
+    .product-detail-img img {
+        height: 250px;
+    }
+
+    .product-detail-info h2 {
+        font-size: 1.8rem;
+    }
+}
+
 .nav-links {
     display: flex;
     list-style: none;

@@ -198,13 +198,6 @@ window.selectSize = (size, btn) => {
     btn.classList.add('active');
 };
 
-window.addToCartFromModal = () => {
-    if (currentProductInModal) {
-        addToCart(currentProductInModal.id, selectedSize);
-        closeProductModal();
-    }
-};
-
 function renderProducts(productsToRender) {
     productsContainer.innerHTML = '';
     productsToRender.forEach(product => {
@@ -239,30 +232,39 @@ function filterProducts(category) {
     }
 }
 
-// Cart Logic
-window.addToCart = (productId, event) => {
+window.addToCartFromModal = () => {
+    if (currentProductInModal) {
+        addToCart(currentProductInModal.id, selectedSize);
+        closeProductModal();
+    }
+};
+
+// Fixed Cart Logic to handle Size and Feedback
+window.addToCart = (productId, size = 'صغير', event = null) => {
     const product = products.find(p => p.id === productId);
-    const cartItem = cart.find(item => item.id === productId);
+    const cartItem = cart.find(item => item.id === productId && item.size === size);
 
     if (cartItem) {
         cartItem.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, quantity: 1, size: size });
     }
 
     saveCart();
     updateCartUI();
 
-    // Simple feedback
-    if (event) {
-        const btn = event.target.closest('.add-to-cart');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> تمت الإضافة';
-        btn.style.background = '#27ae60';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = '';
-        }, 2000);
+    // Simple feedback helper
+    if (event && event.target) {
+        const btn = event.target.closest('button');
+        if (btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> تمت الإضافة';
+            btn.style.background = '#27ae60';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
     }
 };
 
