@@ -1,12 +1,12 @@
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBhSvldtpt-Xibu9_n-AAzVRCjW1Az-Aps",
-    authDomain: "mo90-3d9ee.firebaseapp.com",
-    projectId: "mo90-3d9ee",
-    storageBucket: "mo90-3d9ee.firebasestorage.app",
-    messagingSenderId: "290556247714",
-    appId: "1:290556247714:web:0913f47cf51a85378461fb",
-    measurementId: "G-SKTW979JPC"
+    apiKey: "AIzaSyAh8zgC6yboMgWG56Q3z-GC6VqOWLR3AHY",
+    authDomain: "mm10-719bf.firebaseapp.com",
+    projectId: "mm10-719bf",
+    storageBucket: "mm10-719bf.firebasestorage.app",
+    messagingSenderId: "965633154475",
+    appId: "1:965633154475:web:7528fbe7d5a5d79eea86ee",
+    measurementId: "G-1J6G73W5MN"
 };
 
 // Initialize Firebase (Compat mode)
