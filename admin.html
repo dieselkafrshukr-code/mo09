@@ -385,11 +385,27 @@
         .modal-body {
             background: #111;
             width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
             border-radius: 20px;
             padding: 3rem;
             border: 1px solid rgba(230, 57, 70, 0.3);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             position: relative;
+        }
+
+        /* Custom Scrollbar for Modal */
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--accent-red);
+            border-radius: 10px;
         }
 
         .modal-body h3 {
