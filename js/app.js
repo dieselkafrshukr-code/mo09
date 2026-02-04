@@ -236,10 +236,13 @@ function filterProducts(category) {
     }
 }
 
-window.addToCartFromModal = () => {
+window.addToCartFromModal = (event) => {
     if (currentProductInModal) {
-        addToCart(currentProductInModal.id, selectedSize);
-        closeProductModal();
+        addToCart(currentProductInModal.id, selectedSize, event);
+        setTimeout(() => {
+            closeProductModal();
+            alert('تم إضافة المنتج للسلة بنجاح! يمكنك متابعة طلبك من أعلى الصفحة.');
+        }, 500);
     }
 };
 
