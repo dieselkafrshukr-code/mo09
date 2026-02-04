@@ -13,16 +13,28 @@ const userBtn = document.getElementById('user-btn');
 // State
 let products = [];
 let categories = [];
-let cart = JSON.parse(localStorage.getItem('restaurant_cart')) || [];
+let cart = [];
+
+// Safe Cart Loading
+try {
+    const savedCart = localStorage.getItem('restaurant_cart');
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
+        if (!Array.isArray(cart)) cart = [];
+    }
+} catch (error) {
+    console.error("Error parsing cart:", error);
+    cart = [];
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadCategories();
-    loadProducts();
-    updateCartUI();
+    if (typeof loadCategories === 'function') loadCategories();
+    if (typeof loadProducts === 'function') loadProducts();
+    if (typeof updateCartUI === 'function') updateCartUI();
 });
 
-// Event Listeners
+// Event Listeners - Safe Pattern
 if (cartBtn && cartModal) {
     cartBtn.addEventListener('click', () => cartModal.style.display = 'flex');
 }
@@ -33,9 +45,11 @@ window.addEventListener('click', (e) => {
     if (cartModal && e.target === cartModal) cartModal.style.display = 'none';
 });
 
-userBtn.addEventListener('click', () => {
-    window.location.href = 'admin.html';
-});
+if (userBtn) {
+    userBtn.addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
+}
 
 // Load Categories
 async function loadCategories() {

@@ -20,16 +20,18 @@ auth.onAuthStateChanged(user => {
 });
 
 // Login Handler
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    try {
-        await auth.signInWithEmailAndPassword(email, password);
-    } catch (error) {
-        alert("خطأ في تسجيل الدخول: " + error.message);
-    }
-});
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch (error) {
+            alert("خطأ في تسجيل الدخول: " + error.message);
+        }
+    });
+}
 
 // Dashboard Init
 async function initDashboard() {
