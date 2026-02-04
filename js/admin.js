@@ -86,10 +86,14 @@ function renderAdminCategories() {
 
 function updateCategorySelect() {
     const select = document.getElementById('p-category');
-    select.innerHTML = '<option value="">اختر القسم</option>';
-    allCategories.forEach(cat => {
-        select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-    });
+    if (allCategories.length === 0) {
+        select.innerHTML = '<option value="">لا توجد أقسام.. أضف قسماً أولاً</option>';
+    } else {
+        select.innerHTML = '<option value="">اختر القسم</option>';
+        allCategories.forEach(cat => {
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+    }
 }
 
 // Products Management
@@ -166,13 +170,15 @@ window.openProductModal = (id = null) => {
         document.getElementById('p-name').value = p.name;
         document.getElementById('p-category').value = p.category;
         document.getElementById('p-price').value = p.price;
-        document.getElementById('p-image').value = p.image;
         document.getElementById('p-desc').value = p.desc;
         document.getElementById('p-available').checked = p.available;
+        document.getElementById('upload-status').innerText = "توجد صورة بالفعل (اتركها كما هي للحفاظ عليها)";
     } else {
         form.reset();
         document.getElementById('p-id').value = '';
+        document.getElementById('upload-status').innerText = "";
     }
+    document.getElementById('p-image-file').value = "";
 
     modal.style.display = 'flex';
 };
@@ -184,25 +190,54 @@ window.closeModal = (modalId) => {
 document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('p-id').value;
-    const data = {
-        name: document.getElementById('p-name').value,
-        category: document.getElementById('p-category').value,
-        price: parseFloat(document.getElementById('p-price').value),
-        image: document.getElementById('p-image').value,
-        desc: document.getElementById('p-desc').value,
-        available: document.getElementById('p-available').checked,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const fileInput = document.getElementById('p-image-file');
+    const statusText = document.getElementById('upload-status');
+    let imageUrl = "";
+
+    // If editing, keep old image unless a new one is selected
+    if (id) {
+        const existingProduct = allProducts.find(p => p.id === id);
+        imageUrl = existingProduct.image;
+    }
 
     try {
+        if (fileInput.files[0]) {
+            statusText.innerText = "جاري رفع الصورة...";
+            const file = fileInput.files[0];
+            const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
+            const snapshot = await storageRef.put(file);
+            imageUrl = await snapshot.ref.getDownloadURL();
+            statusText.innerText = "تم رفع الصورة بنجاح!";
+        }
+
+        if (!imageUrl && !id) {
+            alert("الرجاء اختيار صورة للمنتج");
+            return;
+        }
+
+        const data = {
+            name: document.getElementById('p-name').value,
+            category: document.getElementById('p-category').value,
+            price: parseFloat(document.getElementById('p-price').value),
+            image: imageUrl,
+            desc: document.getElementById('p-desc').value,
+            available: document.getElementById('p-available').checked,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
         if (id) {
             await db.collection('products').doc(id).update(data);
         } else {
             await db.collection('products').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         }
+
+        statusText.innerText = "";
+        fileInput.value = "";
         closeModal('product-modal');
     } catch (error) {
+        console.error(error);
         alert("خطأ أثناء الحفظ: " + error.message);
+        statusText.innerText = "فشل الرفع";
     }
 });
 
