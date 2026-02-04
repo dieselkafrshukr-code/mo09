@@ -179,8 +179,8 @@ function renderAdminProducts() {
     });
 }
 
-// Helper to Compress Image
-async function compressImage(file) {
+// Helper to Compress Image and return Base64
+async function compressImageToBase64(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -189,7 +189,7 @@ async function compressImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1000;
+                const MAX_WIDTH = 600; // Smaller width for Base64 storage
                 let width = img.width;
                 let height = img.height;
 
@@ -202,9 +202,7 @@ async function compressImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.7); // 70% quality
+                resolve(canvas.toDataURL('image/jpeg', 0.6)); // 60% quality Base64
             };
         };
     });
@@ -230,29 +228,9 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
-            statusText.innerText = "جاري تحضير الصورة...";
-            const compressedBlob = await compressImage(fileInput.files[0]);
-
-            const storageRef = storage.ref(`products/${Date.now()}.jpg`);
-            const uploadTask = storageRef.put(compressedBlob);
-
-            await new Promise((resolve, reject) => {
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
-                    },
-                    (error) => {
-                        console.error("Upload error:", error);
-                        alert("حدث خطأ أثناء الرفع! تأكد من تفعيل Storage في Firebase: " + error.message);
-                        reject(error);
-                    },
-                    async () => {
-                        imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
-                        resolve();
-                    }
-                );
-            });
+            statusText.innerText = "جاري معالجة الصورة للحفظ المجاني...";
+            imageUrl = await compressImageToBase64(fileInput.files[0]);
+            statusText.innerText = "تمت معالجة الصورة بنجاح!";
         }
 
         if (!imageUrl && !id) {
