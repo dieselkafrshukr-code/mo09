@@ -217,11 +217,12 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
     const desc = document.getElementById('p-desc').value;
     const available = document.getElementById('p-available').checked;
     const fileInput = document.getElementById('p-image-file');
+    const manualUrl = document.getElementById('p-image-url').value;
     const statusText = document.getElementById('upload-status');
 
-    let imageUrl = '';
+    let imageUrl = manualUrl; // استخدم الرابط اليدوي كخيار أول أو ثانوي
 
-    if (id) {
+    if (id && !fileInput.files[0] && !manualUrl) {
         const existing = allProducts.find(p => p.id === id);
         imageUrl = existing.image;
     }
@@ -240,7 +241,7 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
                     },
                     (error) => {
                         console.error("Upload Error:", error);
-                        alert("خطأ في الرفع: " + error.message);
+                        alert("خطأ في الرفع! يبدو أنك لم تفعل الـ Storage في قائمة Firebase (Get Started): " + error.message);
                         reject(error);
                     },
                     async () => {
