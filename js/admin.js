@@ -62,7 +62,11 @@ window.showTab = (tabName) => {
 // Categories Management
 async function loadAdminCategories() {
     db.collection('categories').onSnapshot(snapshot => {
-        allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (snapshot.empty) {
+            allCategories = [{ id: 'default', name: 'عام' }];
+        } else {
+            allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
         renderAdminCategories();
         updateCategorySelect();
     });
