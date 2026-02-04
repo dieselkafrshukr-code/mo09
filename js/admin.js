@@ -229,28 +229,14 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
+            statusText.innerText = "جاري الرفع...";
             const file = fileInput.files[0];
             const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
-            const uploadTask = storageRef.put(file);
 
-            await new Promise((resolve, reject) => {
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
-                    },
-                    (error) => {
-                        console.error("Upload Error:", error);
-                        alert("خطأ في الرفع! يبدو أنك لم تفعل الـ Storage في قائمة Firebase (Get Started): " + error.message);
-                        reject(error);
-                    },
-                    async () => {
-                        imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
-                        statusText.innerText = "تم الرفع بنجاح!";
-                        resolve();
-                    }
-                );
-            });
+            // رفع مباشر بدون مراقبة النسبة للتأكد من عدم التعليق
+            const snapshot = await storageRef.put(file);
+            imageUrl = await snapshot.ref.getDownloadURL();
+            statusText.innerText = "تم الرفع بنجاح!";
         }
 
         if (!imageUrl && !id) {
