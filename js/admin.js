@@ -247,8 +247,8 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
         closeModal('product-modal');
     } catch (error) {
         console.error(error);
-        alert("خطأ أثناء الحفظ: " + error.message);
-        statusText.innerText = "فشل الرفع";
+        statusText.style.color = "red";
+        statusText.innerText = "خطأ: " + error.message;
     }
 });
 
