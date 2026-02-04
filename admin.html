@@ -600,20 +600,12 @@
                     <div class="stat-value" id="stats-total-products">0</div>
                     <div class="stat-label">إجمالي المنتجات</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-pizza-slice"></i></div>
-                    <div class="stat-value" id="stats-main-courses">0</div>
-                    <div class="stat-label">وجبات رئيسية</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-glass-water"></i></div>
-                    <div class="stat-value" id="stats-drinks">0</div>
-                    <div class="stat-label">مشروبات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-ice-cream"></i></div>
-                    <div class="stat-value" id="stats-desserts">0</div>
-                    <div class="stat-label">حلويات</div>
+                <!-- ... other stats ... -->
+                <div class="stat-card"
+                    style="border: 2px solid var(--accent-red); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px;"
+                    onclick="clearAllData()">
+                    <i class="fas fa-trash-alt" style="color: var(--accent-red); font-size: 1.5rem;"></i>
+                    <div class="stat-label" style="color: var(--accent-red); font-weight: 800;">مسح كل البيانات</div>
                 </div>
             </div>
 

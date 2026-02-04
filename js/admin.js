@@ -118,17 +118,9 @@ function updateCategorySelect() {
     const currentVal = select.value;
     select.innerHTML = '<option value="">اختر القسم</option>';
 
-    // Default categories that should always be there
-    const defaultCats = ['وجبات رئيسية', 'مقبلات', 'مشروبات', 'حلويات'];
-    defaultCats.forEach(name => {
-        select.innerHTML += `<option value="${name}">${name}</option>`;
-    });
-
-    // Custom categories from DB
+    // Custom categories from DB only
     allCategories.forEach(cat => {
-        if (!defaultCats.includes(cat.name)) {
-            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-        }
+        select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
     });
 
     if (currentVal) select.value = currentVal;
@@ -348,3 +340,23 @@ function updateStats() {
     document.getElementById('stats-drinks').innerText = allProducts.filter(p => p.category === 'مشروبات').length;
     document.getElementById('stats-desserts').innerText = allProducts.filter(p => p.category === 'حلويات').length;
 }
+
+// Bulk Deletion Logic
+window.clearAllData = async () => {
+    if (!confirm('⚠️ تحذير: سيتم حذف كافة المنتجات والأقسام نهائياً. هل أنت متأكد؟')) return;
+
+    try {
+        const prodSnap = await db.collection('products').get();
+        const catSnap = await db.collection('categories').get();
+
+        const batch = db.batch();
+        prodSnap.docs.forEach(doc => batch.delete(doc.ref));
+        catSnap.docs.forEach(doc => batch.delete(doc.ref));
+
+        await batch.commit();
+        alert('تم مسح كافة البيانات بنجاح! يمكنك الآن البدء من جديد.');
+        location.reload();
+    } catch (error) {
+        alert("خطأ أثناء المسح: " + error.message);
+    }
+};
