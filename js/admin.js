@@ -335,10 +335,8 @@ window.updateOrderStatus = async (id, status) => {
 
 // Stats
 function updateStats() {
-    document.getElementById('stats-total-products').innerText = allProducts.length;
-    document.getElementById('stats-main-courses').innerText = allProducts.filter(p => p.category === 'وجبات رئيسية').length;
-    document.getElementById('stats-drinks').innerText = allProducts.filter(p => p.category === 'مشروبات').length;
-    document.getElementById('stats-desserts').innerText = allProducts.filter(p => p.category === 'حلويات').length;
+    const totalEl = document.getElementById('stats-total-products');
+    if (totalEl) totalEl.innerText = allProducts.length;
 }
 
 // Bulk Deletion Logic
