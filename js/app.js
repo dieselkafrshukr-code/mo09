@@ -199,9 +199,25 @@ window.openProductDetail = (productId) => {
     document.getElementById('modal-p-price').innerText = `${product.price} ج.م`;
     document.getElementById('modal-p-image').src = product.image;
 
-    // Reset size buttons
-    document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector('.size-btn:first-child').classList.add('active');
+    // Dynamic Sizes Handling
+    const sizeContainer = document.getElementById('size-selection');
+    const sizeOptions = sizeContainer.querySelector('.size-options');
+
+    if (product.sizes && product.sizes.length > 0) {
+        sizeContainer.style.display = 'block';
+        selectedSize = product.sizes[0];
+        sizeOptions.innerHTML = '';
+        product.sizes.forEach((size, index) => {
+            const btn = document.createElement('button');
+            btn.className = `size-btn ${index === 0 ? 'active' : ''}`;
+            btn.innerText = size;
+            btn.onclick = (e) => selectSize(size, e.target);
+            sizeOptions.appendChild(btn);
+        });
+    } else {
+        sizeContainer.style.display = 'none';
+        selectedSize = ''; // No specific size
+    }
 
     document.getElementById('product-modal').style.display = 'flex';
 };

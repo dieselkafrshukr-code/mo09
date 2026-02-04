@@ -70,6 +70,7 @@ window.openProductModal = (id = null) => {
         document.getElementById('p-category').value = p.category;
         document.getElementById('p-price').value = p.price;
         document.getElementById('p-desc').value = p.description || '';
+        document.getElementById('p-sizes').value = p.sizes ? p.sizes.join(', ') : '';
         document.getElementById('p-available').checked = p.available !== false;
     } else {
         title.innerText = 'إضافة منتج جديد';
@@ -217,6 +218,7 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
     const category = document.getElementById('p-category').value;
     const price = document.getElementById('p-price').value;
     const desc = document.getElementById('p-desc').value;
+    const sizesStr = document.getElementById('p-sizes').value;
     const available = document.getElementById('p-available').checked;
     const fileInput = document.getElementById('p-image-file');
     const manualUrl = document.getElementById('p-image-url').value;
@@ -271,6 +273,7 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
             category,
             price: parseFloat(price),
             description: desc,
+            sizes: sizesStr.split(',').map(s => s.trim()).filter(s => s !== ''),
             available: available,
             image: imageUrl,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
