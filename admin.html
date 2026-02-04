@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - إدارة المطعم</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f0f2f5;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 1rem;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-right: 260px;
+            padding: 2rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            color: #d4a373;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #d4a373;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .header-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background: #d4a373;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-preparing {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-delivered {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        /* Modal for forms */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 500px;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 90%;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Admin Login -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="margin-bottom: 2rem; color: #d4a373;">تسجيل دخول المشرف</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="checkout-btn">دخول</button>
+                <div style="margin-top: 1rem;"><a href="index.html" style="color:#777; text-decoration:none;">العودة
+                        للموقع</a></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-container" id="admin-panel" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>RESTAURANT ADMIN</h2>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showTab('products')"><i class="fas fa-burger"></i>
+                        المنتجات</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showTab('categories')"><i class="fas fa-list"></i> الأقسام</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showTab('orders')"><i class="fas fa-shopping-bag"></i>
+                        الطلبات</a>
+                </li>
+                <li class="nav-item" style="margin-top: 5rem;">
+                    <a href="#" class="nav-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Products Tab -->
+            <section id="tab-products">
+                <div class="header-action">
+                    <h1>إدارة المنتجات</h1>
+                    <button class="btn-add" onclick="openProductModal()"><i class="fas fa-plus"></i> منتج جديد</button>
+                </div>
+                <div class="card">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>الصورة</th>
+                                <th>الاسم</th>
+                                <th>القسم</th>
+                                <th>السعر</th>
+                                <th>الحالة</th>
+                                <th>العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-list">
+                            <!-- JS will load products here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories Tab (Hidden by default) -->
+            <section id="tab-categories" style="display: none;">
+                <div class="header-action">
+                    <h1>إدارة الأقسام</h1>
+                    <button class="btn-add" onclick="openCategoryModal()"><i class="fas fa-plus"></i> قسم جديد</button>
+                </div>
+                <div class="card">
+                    <table id="categories-table">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>عدد المنتجات</th>
+                                <th>العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-categories-list">
+                            <!-- JS will load categories here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Orders Tab (Hidden by default) -->
+            <section id="tab-orders" style="display: none;">
+                <div class="header-action">
+                    <h1>الطلبات الواردة</h1>
+                </div>
+                <div class="card">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>العميل</th>
+                                <th>الإجمالي</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                                <th>العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-list">
+                            <!-- JS will load orders here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="admin-modal" id="product-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">إضافة منتج جديد</h3>
+            <form id="product-form" style="margin-top: 1.5rem;">
+                <input type="hidden" id="p-id">
+                <div class="form-group">
+                    <label>اسم المنتج</label>
+                    <input type="text" id="p-name" required>
+                </div>
+                <div class="form-group">
+                    <label>القسم</label>
+                    <select id="p-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label>السعر (ج.م)</label>
+                    <input type="number" id="p-price" required>
+                </div>
+                <div class="form-group">
+                    <label>رابط الصورة</label>
+                    <input type="text" id="p-image" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="p-desc" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="p-available" checked> متوفر بالمطعم</label>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="checkout-btn">حفظ المنتج</button>
+                    <button type="button" class="btn-add" style="background:#777"
+                        onclick="closeModal('product-modal')">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="admin-modal" id="category-modal">
+        <div class="modal-content">
+            <h3>إضافة قسم جديد</h3>
+            <form id="category-form" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>اسم القسم</label>
+                    <input type="text" id="cat-name" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="checkout-btn">حفظ</button>
+                    <button type="button" class="btn-add" style="background:#777"
+                        onclick="closeModal('category-modal')">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase App -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
