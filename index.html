@@ -87,6 +87,29 @@
     </div>
 
 
+    <!-- Shopping Cart Modal (Sidebar) -->
+    <div id="cart-modal" class="modal cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>سلة المشتريات</h3>
+                <button class="close-modal" id="close-cart">&times;</button>
+            </div>
+            <div id="cart-items-container" class="cart-items-list">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>الإجمالي:</span>
+                    <span id="cart-total-amount">0 ج.م</span>
+                </div>
+                <button id="checkout-whatsapp" class="checkout-btn">
+                    إرسال الطلب عبر واتساب <i class="fab fa-whatsapp"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <!-- Add Firebase products that you want to use -->

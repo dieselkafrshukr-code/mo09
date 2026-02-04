@@ -243,9 +243,9 @@ function updateCartUI() {
                     <p>${item.price} ج.م × ${item.quantity} (${item.size})</p>
                 </div>
                 <div class="cart-item-actions" style="display:flex; align-items:center; gap:0.5rem">
-                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', '${item.size}', -1)"><i class="fas fa-minus-circle"></i></button>
+                    <button class="icon-btn" style="color:white" onclick="changeQuantity('${item.id}', '${item.size}', -1)"><i class="fas fa-minus-circle"></i></button>
                     <span>${item.quantity}</span>
-                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', '${item.size}', 1)"><i class="fas fa-plus-circle"></i></button>
+                    <button class="icon-btn" style="color:white" onclick="changeQuantity('${item.id}', '${item.size}', 1)"><i class="fas fa-plus-circle"></i></button>
                     <button class="icon-btn" style="color:#e63946" onclick="removeFromCart('${item.id}', '${item.size}')"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
