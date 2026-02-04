@@ -215,6 +215,8 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
                         statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
                     },
                     (error) => {
+                        console.error("Storage Error:", error);
+                        alert("خطأ في السيرفر: " + error.message);
                         reject(error);
                     },
                     async () => {
