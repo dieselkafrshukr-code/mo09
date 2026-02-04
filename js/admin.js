@@ -203,12 +203,27 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
-            statusText.innerText = "جاري رفع الصورة...";
             const file = fileInput.files[0];
             const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
-            const snapshot = await storageRef.put(file);
-            imageUrl = await snapshot.ref.getDownloadURL();
-            statusText.innerText = "تم الرفع بنجاح!";
+            const uploadTask = storageRef.put(file);
+
+            // نراقب عملية الرفع ونرسم النسبة المئوية
+            await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
+                    },
+                    (error) => {
+                        reject(error);
+                    },
+                    async () => {
+                        imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                        statusText.innerText = "تم الرفع بنجاح!";
+                        resolve();
+                    }
+                );
+            });
         }
 
         if (!imageUrl && !id) {
