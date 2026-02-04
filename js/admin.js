@@ -228,9 +228,28 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
     try {
         if (fileInput.files[0]) {
-            statusText.innerText = "جاري معالجة الصورة للحفظ المجاني...";
-            imageUrl = await compressImageToBase64(fileInput.files[0]);
-            statusText.innerText = "تمت معالجة الصورة بنجاح!";
+            const file = fileInput.files[0];
+            const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
+            const uploadTask = storageRef.put(file);
+
+            await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
+                    },
+                    (error) => {
+                        console.error("Upload Error:", error);
+                        alert("خطأ في الرفع: " + error.message);
+                        reject(error);
+                    },
+                    async () => {
+                        imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                        statusText.innerText = "تم الرفع بنجاح!";
+                        resolve();
+                    }
+                );
+            });
         }
 
         if (!imageUrl && !id) {
