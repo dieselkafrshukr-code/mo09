@@ -2,12 +2,10 @@
 const loginOverlay = document.getElementById('login-overlay');
 const adminPanel = document.getElementById('admin-panel');
 const loginForm = document.getElementById('login-form');
-const logoutBtn = document.getElementById('logout-btn');
 
 // State
 let allProducts = [];
 let allCategories = [];
-let currentCategoryFilter = 'all';
 
 // Auth State Observer
 auth.onAuthStateChanged(user => {
@@ -26,17 +24,11 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-
     try {
         await auth.signInWithEmailAndPassword(email, password);
     } catch (error) {
         alert("خطأ في تسجيل الدخول: " + error.message);
     }
-});
-
-// Logout Handler
-logoutBtn.addEventListener('click', () => {
-    auth.signOut();
 });
 
 // Dashboard Init
@@ -59,14 +51,18 @@ window.showTab = (tabName) => {
     event.currentTarget.classList.add('active');
 };
 
+// Stats Calculation
+function updateStats() {
+    document.getElementById('stats-total-products').innerText = allProducts.length;
+    document.getElementById('stats-main-courses').innerText = allProducts.filter(p => p.category === 'وجبات رئيسية').length;
+    document.getElementById('stats-drinks').innerText = allProducts.filter(p => p.category === 'مشروبات').length;
+    document.getElementById('stats-desserts').innerText = allProducts.filter(p => p.category === 'حلويات').length;
+}
+
 // Categories Management
 async function loadAdminCategories() {
     db.collection('categories').onSnapshot(snapshot => {
-        if (snapshot.empty) {
-            allCategories = [{ id: 'default', name: 'عام' }];
-        } else {
-            allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        }
+        allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderAdminCategories();
         updateCategorySelect();
     });
@@ -79,9 +75,8 @@ function renderAdminCategories() {
         list.innerHTML += `
             <tr>
                 <td>${cat.name}</td>
-                <td>-</td>
                 <td>
-                    <button class="icon-btn" onclick="deleteCategory('${cat.id}')" style="color:#e63946"><i class="fas fa-trash"></i></button>
+                    <button class="icon-btn delete" onclick="deleteCategory('${cat.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `;
@@ -91,15 +86,10 @@ function renderAdminCategories() {
 function updateCategorySelect() {
     const select = document.getElementById('p-category');
     select.innerHTML = '<option value="">اختر القسم</option>';
-
-    // الأقسام الأساسية للمطعم - ثابتة دائماً لسهولة الاستخدام
     const defaultCats = ['وجبات رئيسية', 'مقبلات', 'مشروبات', 'حلويات'];
-
     defaultCats.forEach(catName => {
         select.innerHTML += `<option value="${catName}">${catName}</option>`;
     });
-
-    // إضافة أي أقسام إضافية قام المستخدم بإنشائها
     allCategories.forEach(cat => {
         if (!defaultCats.includes(cat.name)) {
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
@@ -112,6 +102,7 @@ async function loadAdminProducts() {
     db.collection('products').onSnapshot(snapshot => {
         allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderAdminProducts();
+        updateStats();
     });
 }
 
@@ -121,14 +112,16 @@ function renderAdminProducts() {
     allProducts.forEach(p => {
         list.innerHTML += `
             <tr>
-                <td><img src="${p.image}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;"></td>
+                <td><img src="${p.image}" class="product-img-th"></td>
                 <td>${p.name}</td>
-                <td>${p.category}</td>
                 <td>${p.price} ج.م</td>
+                <td>${p.category}</td>
                 <td><span class="status-badge ${p.available ? 'status-delivered' : 'status-new'}">${p.available ? 'متوفر' : 'غير متوفر'}</span></td>
                 <td>
-                    <button class="icon-btn" onclick="openProductModal('${p.id}')" style="color:#2ecc71"><i class="fas fa-edit"></i></button>
-                    <button class="icon-btn" onclick="deleteProduct('${p.id}')" style="color:#e63946"><i class="fas fa-trash"></i></button>
+                    <div class="action-btns">
+                        <button class="icon-btn edit" onclick="openProductModal('${p.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -151,7 +144,7 @@ async function loadAdminOrders() {
                     <td>${date}</td>
                     <td><span class="status-badge ${getStatusClass(order.status)}">${order.status}</span></td>
                     <td>
-                        <select onchange="updateOrderStatus('${doc.id}', this.value)" style="padding:5px; border-radius:5px;">
+                        <select onchange="updateOrderStatus('${doc.id}', this.value)" style="background:#000; color:#fff; border:1px solid #333; padding:5px; border-radius:5px;">
                             <option value="جديد" ${order.status === 'جديد' ? 'selected' : ''}>جديد</option>
                             <option value="جاري التحضير" ${order.status === 'جاري التحضير' ? 'selected' : ''}>جاري التحضير</option>
                             <option value="تم التسليم" ${order.status === 'تم التسليم' ? 'selected' : ''}>تم التسليم</option>
@@ -183,14 +176,12 @@ window.openProductModal = (id = null) => {
         document.getElementById('p-price').value = p.price;
         document.getElementById('p-desc').value = p.desc;
         document.getElementById('p-available').checked = p.available;
-        document.getElementById('upload-status').innerText = "توجد صورة بالفعل (اتركها كما هي للحفاظ عليها)";
     } else {
         form.reset();
         document.getElementById('p-id').value = '';
-        document.getElementById('upload-status').innerText = "";
     }
     document.getElementById('p-image-file').value = "";
-
+    document.getElementById('upload-status').innerText = "";
     modal.style.display = 'flex';
 };
 
@@ -205,7 +196,6 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
     const statusText = document.getElementById('upload-status');
     let imageUrl = "";
 
-    // If editing, keep old image unless a new one is selected
     if (id) {
         const existingProduct = allProducts.find(p => p.id === id);
         imageUrl = existingProduct.image;
@@ -218,11 +208,11 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
             const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
             const snapshot = await storageRef.put(file);
             imageUrl = await snapshot.ref.getDownloadURL();
-            statusText.innerText = "تم رفع الصورة بنجاح!";
+            statusText.innerText = "تم الرفع بنجاح!";
         }
 
         if (!imageUrl && !id) {
-            alert("الرجاء اختيار صورة للمنتج");
+            alert("الرجاء اختيار صورة");
             return;
         }
 
@@ -241,20 +231,27 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
         } else {
             await db.collection('products').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         }
-
-        statusText.innerText = "";
-        fileInput.value = "";
         closeModal('product-modal');
     } catch (error) {
-        console.error(error);
-        statusText.style.color = "red";
         statusText.innerText = "خطأ: " + error.message;
     }
 });
 
 window.deleteProduct = async (id) => {
-    if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+    if (confirm('هل أنت متأكد من حذف المنتج؟')) {
         await db.collection('products').doc(id).delete();
+    }
+};
+
+window.deleteAllProducts = async () => {
+    if (confirm('⚠️ خطر: هل أنت متأكد من حذف جميع المنتجات؟')) {
+        const batch = db.batch();
+        allProducts.forEach(p => {
+            const ref = db.collection('products').doc(p.id);
+            batch.delete(ref);
+        });
+        await batch.commit();
+        alert('تم حذف جميع المنتجات بنجاح');
     }
 };
 
@@ -267,15 +264,15 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
     const name = document.getElementById('cat-name').value;
     try {
         await db.collection('categories').add({ name });
-        document.getElementById('category-form').reset();
         closeModal('category-modal');
+        document.getElementById('category-form').reset();
     } catch (error) {
         alert("خطأ: " + error.message);
     }
 });
 
 window.deleteCategory = async (id) => {
-    if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+    if (confirm('هل أنت متأكد من حذف القسم؟')) {
         await db.collection('categories').doc(id).delete();
     }
 };
