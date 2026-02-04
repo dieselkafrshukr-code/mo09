@@ -443,23 +443,39 @@
             outline: none;
         }
 
+        /* Safe Select Styling */
         .form-group select {
+            width: 100% !important;
             height: 55px !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 2px solid var(--accent-red) !important;
+            border-radius: 12px !important;
+            padding: 0 15px !important;
+            font-size: 1.1rem !important;
+            font-weight: bold !important;
+            display: block !important;
+            appearance: auto !important;
+            /* اترك المتصفح يظهر السهم الافتراضي للضمان */
             cursor: pointer;
-            padding-right: 15px !important;
         }
 
         .form-group select option {
-            background: #fff !important;
-            color: #000 !important;
-            padding: 10px !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 15px !important;
         }
 
         .form-group input:focus,
-        .form-group select:focus,
         .form-group textarea:focus {
             border-color: var(--accent-red) !important;
             background: #050505 !important;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #fff !important;
+            box-shadow: 0 0 10px rgba(230, 57, 70, 0.5);
         }
 
         .modal-footer {
