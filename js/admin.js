@@ -90,14 +90,18 @@ function renderAdminCategories() {
 
 function updateCategorySelect() {
     const select = document.getElementById('p-category');
-    if (allCategories.length === 0) {
-        select.innerHTML = '<option value="">لا توجد أقسام.. أضف قسماً أولاً</option>';
-    } else {
-        select.innerHTML = '<option value="">اختر القسم</option>';
-        allCategories.forEach(cat => {
-            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-        });
+    select.innerHTML = '<option value="">اختر القسم</option>';
+
+    // Always add 'General' as a starting option if building a new site
+    if (allCategories.length === 0 || !allCategories.find(c => c.name === 'عام')) {
+        select.innerHTML += `<option value="عام">عام</option>`;
     }
+
+    allCategories.forEach(cat => {
+        if (cat.name !== 'عام') { // Avoid duplicates
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        }
+    });
 }
 
 // Products Management
