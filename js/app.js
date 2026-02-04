@@ -209,18 +209,21 @@ function renderProducts(productsToRender) {
     productsContainer.innerHTML = '';
     productsToRender.forEach(product => {
         const card = document.createElement('div');
-        card.className = 'product-card animate-on-scroll';
+        card.className = 'product-card';
         card.innerHTML = `
             <div class="product-img" onclick="openProductDetail('${product.id}')">
-                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop'">
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop'">
                 <div class="product-overlay">
-                    <span>تفاصيل المنتج <i class="fas fa-eye"></i></span>
+                    <span>عرض التفاصيل <i class="fas fa-search-plus"></i></span>
                 </div>
             </div>
             <div class="product-info">
+                <div class="product-category">${product.category}</div>
                 <h3>${product.name}</h3>
-                <p>${product.price} ج.م</p>
-                <button class="add-btn" onclick="openProductDetail('${product.id}')">اطلب الآن <i class="fas fa-plus"></i></button>
+                <p>${product.price} <span>ج.م</span></p>
+                <button class="add-btn" onclick="openProductDetail('${product.id}')">
+                    اطلب الآن <i class="fas fa-shopping-basket"></i>
+                </button>
             </div>
         `;
         productsContainer.appendChild(card);
