@@ -10,7 +10,7 @@
     --accent-color: #e63946;
     --white: #ffffff;
     --transition: all 0.3s ease;
-    --shadow: 0 10px 30px rgba(0,0,0,0.1);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -25,16 +25,19 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     overflow-x: hidden;
-    direction: rtl; /* Arabic support */
+    direction: rtl;
+    /* Arabic support */
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--light-gray);
 }
+
 ::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 10px;
@@ -121,7 +124,7 @@ nav.scrolled {
 /* Hero Section */
 .hero {
     height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../images/hero-bg.jpg');
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../images/hero-bg.png');
     background-size: cover;
     background-position: center;
     display: flex;
@@ -210,7 +213,8 @@ nav.scrolled {
     color: var(--text-color);
 }
 
-.category-btn.active, .category-btn:hover {
+.category-btn.active,
+.category-btn:hover {
     background: var(--primary-color);
     color: var(--white);
     border-color: var(--primary-color);
@@ -314,7 +318,7 @@ nav.scrolled {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 2000;
     display: none;
     justify-content: flex-end;
@@ -408,6 +412,7 @@ nav.scrolled {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -415,13 +420,26 @@ nav.scrolled {
 }
 
 @keyframes slideInLeft {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .nav-links { display: none; }
-    .hero h1 { font-size: 2.5rem; }
-    .cart-content { width: 100%; }
+    .nav-links {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .cart-content {
+        width: 100%;
+    }
 }

@@ -80,10 +80,10 @@ async function loadProducts() {
         if (snapshot.empty) {
             // Dummy products if DB is empty
             products = [
-                { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.jpg', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
-                { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.jpg', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' },
-                { id: 'p3', name: 'بيتزا نابولي', price: 130, category: 'وجبات رئيسية', image: 'images/products/pizza.jpg', desc: 'صلصة طماطم، موزاريلا فريش، ريحان' },
-                { id: 'p4', name: 'موهيتو ليمون نعناع', price: 40, category: 'مشروبات', image: 'images/products/mojito.jpg', desc: 'مشروب منعش بالليمون والنعناع الطازج' }
+                { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.png', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
+                { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.png', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' },
+                { id: 'p3', name: 'بيتزا نابولي', price: 130, category: 'وجبات رئيسية', image: 'images/products/pizza.png', desc: 'صلصة طماطم، موزاريلا فريش، ريحان' },
+                { id: 'p4', name: 'موهيتو ليمون نعناع', price: 40, category: 'مشروبات', image: 'images/products/mojito.png', desc: 'مشروب منعش بالليمون والنعناع الطازج' }
             ];
         } else {
             products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -93,8 +93,10 @@ async function loadProducts() {
         console.error("Error loading products:", error);
         // Fallback dummy products
         products = [
-            { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.jpg', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
-            { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.jpg', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' }
+            { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.png', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
+            { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.png', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' },
+            { id: 'p3', name: 'بيتزا نابولي', price: 130, category: 'وجبات رئيسية', image: 'images/products/pizza.png', desc: 'صلصة طماطم، موزاريلا فريش، ريحان' },
+            { id: 'p4', name: 'موهيتو ليمون نعناع', price: 40, category: 'مشروبات', image: 'images/products/mojito.png', desc: 'مشروب منعش بالليمون والنعناع الطازج' }
         ];
         renderProducts(products);
     }
@@ -106,7 +108,7 @@ function renderProducts(productsToRender) {
         productsContainer.innerHTML += `
             <div class="product-card">
                 <div class="product-img">
-                    <img src="${product.image}" alt="${product.name}">
+                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300?text=Food'">
                 </div>
                 <div class="product-info">
                     <div class="product-category">${product.category}</div>
@@ -114,7 +116,7 @@ function renderProducts(productsToRender) {
                     <p class="product-desc">${product.desc}</p>
                     <div class="product-footer">
                         <span class="product-price">${product.price} ج.م</span>
-                        <button class="add-to-cart" onclick="addToCart('${product.id}')">
+                        <button class="add-to-cart" onclick="addToCart('${product.id}', event)">
                             <i class="fas fa-plus"></i> أضف للسلة
                         </button>
                     </div>
@@ -134,7 +136,7 @@ function filterProducts(category) {
 }
 
 // Cart Logic
-window.addToCart = (productId) => {
+window.addToCart = (productId, event) => {
     const product = products.find(p => p.id === productId);
     const cartItem = cart.find(item => item.id === productId);
 
@@ -148,14 +150,16 @@ window.addToCart = (productId) => {
     updateCartUI();
 
     // Simple feedback
-    const btn = event.target.closest('.add-to-cart');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-check"></i> تمت الإضافة';
-    btn.style.background = '#27ae60';
-    setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.style.background = '';
-    }, 2000);
+    if (event) {
+        const btn = event.target.closest('.add-to-cart');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> تمت الإضافة';
+        btn.style.background = '#27ae60';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+        }, 2000);
+    }
 };
 
 function saveCart() {
