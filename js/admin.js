@@ -92,13 +92,16 @@ function updateCategorySelect() {
     const select = document.getElementById('p-category');
     select.innerHTML = '<option value="">اختر القسم</option>';
 
-    // Always add 'General' as a starting option if building a new site
-    if (allCategories.length === 0 || !allCategories.find(c => c.name === 'عام')) {
-        select.innerHTML += `<option value="عام">عام</option>`;
-    }
+    // الأقسام الأساسية للمطعم - ثابتة دائماً لسهولة الاستخدام
+    const defaultCats = ['وجبات رئيسية', 'مقبلات', 'مشروبات', 'حلويات'];
 
+    defaultCats.forEach(catName => {
+        select.innerHTML += `<option value="${catName}">${catName}</option>`;
+    });
+
+    // إضافة أي أقسام إضافية قام المستخدم بإنشائها
     allCategories.forEach(cat => {
-        if (cat.name !== 'عام') { // Avoid duplicates
+        if (!defaultCats.includes(cat.name)) {
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
         }
     });
