@@ -80,10 +80,10 @@ async function loadProducts() {
         if (snapshot.empty) {
             // Dummy products if DB is empty
             products = [
-                { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
-                { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'https://images.unsplash.com/photo-1645112481338-3560e998e910?auto=format&fit=crop&w=500&q=80', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' },
-                { id: 'p3', name: 'بطاطس مقلية', price: 45, category: 'مقبلات', image: 'https://images.unsplash.com/photo-1630384066252-19e1ad955494?auto=format&fit=crop&w=500&q=80', desc: 'بطاطس ذهبية ومقرمشة بالسماق' },
-                { id: 'p4', name: 'موهيتو ليمون نعناع', price: 40, category: 'مشروبات', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500&q=80', desc: 'مشروب منعش بالليمون والنعناع الطازج' }
+                { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.jpg', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
+                { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.jpg', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' },
+                { id: 'p3', name: 'بيتزا نابولي', price: 130, category: 'وجبات رئيسية', image: 'images/products/pizza.jpg', desc: 'صلصة طماطم، موزاريلا فريش، ريحان' },
+                { id: 'p4', name: 'موهيتو ليمون نعناع', price: 40, category: 'مشروبات', image: 'images/products/mojito.jpg', desc: 'مشروب منعش بالليمون والنعناع الطازج' }
             ];
         } else {
             products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -93,8 +93,8 @@ async function loadProducts() {
         console.error("Error loading products:", error);
         // Fallback dummy products
         products = [
-            { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
-            { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'https://images.unsplash.com/photo-1645112481338-3560e998e910?auto=format&fit=crop&w=500&q=80', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' }
+            { id: 'p1', name: 'برجر دجاج كريسبي', price: 120, category: 'وجبات رئيسية', image: 'images/products/burger.jpg', desc: 'صدر دجاج مقرمش مع صوص خاص وخس' },
+            { id: 'p2', name: 'باستا الفريدو', price: 95, category: 'وجبات رئيسية', image: 'images/products/pasta.jpg', desc: 'مكرونة بصوص الكريمة والمشروم والدجاج' }
         ];
         renderProducts(products);
     }
