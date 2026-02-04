@@ -23,10 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Event Listeners
-cartBtn.addEventListener('click', () => cartModal.style.display = 'flex');
-closeCart.addEventListener('click', () => cartModal.style.display = 'none');
+if (cartBtn && cartModal) {
+    cartBtn.addEventListener('click', () => cartModal.style.display = 'flex');
+}
+if (closeCart && cartModal) {
+    closeCart.addEventListener('click', () => cartModal.style.display = 'none');
+}
 window.addEventListener('click', (e) => {
-    if (e.target === cartModal) cartModal.style.display = 'none';
+    if (cartModal && e.target === cartModal) cartModal.style.display = 'none';
 });
 
 userBtn.addEventListener('click', () => {
@@ -273,12 +277,14 @@ function saveCart() {
 }
 
 function updateCartUI() {
-    cartCount.innerText = cart.reduce((total, item) => total + item.quantity, 0);
+    if (cartCount) cartCount.innerText = cart.reduce((total, item) => total + item.quantity, 0);
+    if (!cartItemsContainer) return;
+
     cartItemsContainer.innerHTML = '';
 
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p style="text-align: center; margin-top: 2rem;">السلة فارغة</p>';
-        cartTotalAmount.innerText = '0 ج.م';
+        if (cartTotalAmount) cartTotalAmount.innerText = '0 ج.م';
         return;
     }
 
@@ -290,27 +296,27 @@ function updateCartUI() {
                 <img src="${item.image}" alt="${item.name}">
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
-                    <p>${item.price} ج.م × ${item.quantity}</p>
+                    <p>${item.price} ج.م × ${item.quantity} (${item.size})</p>
                 </div>
                 <div class="cart-item-actions" style="display:flex; align-items:center; gap:0.5rem">
-                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', -1)"><i class="fas fa-minus-circle"></i></button>
+                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', '${item.size}', -1)"><i class="fas fa-minus-circle"></i></button>
                     <span>${item.quantity}</span>
-                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', 1)"><i class="fas fa-plus-circle"></i></button>
-                    <button class="icon-btn" style="color:#e63946" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button>
+                    <button class="icon-btn" style="color:black" onclick="changeQuantity('${item.id}', '${item.size}', 1)"><i class="fas fa-plus-circle"></i></button>
+                    <button class="icon-btn" style="color:#e63946" onclick="removeFromCart('${item.id}', '${item.size}')"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
         `;
     });
 
-    cartTotalAmount.innerText = `${total} ج.م`;
+    if (cartTotalAmount) cartTotalAmount.innerText = `${total} ج.م`;
 }
 
-window.changeQuantity = (productId, delta) => {
-    const item = cart.find(i => i.id === productId);
+window.changeQuantity = (productId, size, delta) => {
+    const item = cart.find(i => i.id === productId && i.size === size);
     if (item) {
         item.quantity += delta;
         if (item.quantity <= 0) {
-            removeFromCart(productId);
+            removeFromCart(productId, size);
         } else {
             saveCart();
             updateCartUI();
@@ -318,36 +324,38 @@ window.changeQuantity = (productId, delta) => {
     }
 };
 
-window.removeFromCart = (productId) => {
-    cart = cart.filter(i => i.id !== productId);
+window.removeFromCart = (productId, size) => {
+    cart = cart.filter(i => !(i.id === productId && i.size === size));
     saveCart();
     updateCartUI();
 };
 
 // WhatsApp Order
-checkoutBtn.addEventListener('click', () => {
-    if (cart.length === 0) return alert('السلة فارغة!');
+if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) return alert('السلة فارغة!');
 
-    let message = "مرحباً، أود طلب الآتي:\n\n";
-    let total = 0;
+        let message = "مرحباً، أود طلب الآتي:\n\n";
+        let total = 0;
 
-    cart.forEach(item => {
-        message += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${item.quantity * item.price} ج.م\n`;
-        total += item.quantity * item.price;
+        cart.forEach(item => {
+            message += `• ${item.name} [${item.size}] (${item.quantity} × ${item.price} ج.م) = ${item.quantity * item.price} ج.م\n`;
+            total += item.quantity * item.price;
+        });
+
+        message += `\n*الإجمالي: ${total} ج.م*`;
+        message += `\n\nشكراً لكم!`;
+
+        const phoneNumber = "201012345678"; // REPLACE WITH ACTUAL PHONE
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+        // Track order in DB (Optional/Extra)
+        saveOrderToDB(total);
+
+        window.open(whatsappUrl, '_blank');
     });
-
-    message += `\n*الإجمالي: ${total} ج.م*`;
-    message += `\n\nشكراً لكم!`;
-
-    const phoneNumber = "201012345678"; // REPLACE WITH ACTUAL PHONE
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
-    // Track order in DB (Optional/Extra)
-    saveOrderToDB(total);
-
-    window.open(whatsappUrl, '_blank');
-});
+}
 
 async function saveOrderToDB(total) {
     try {
