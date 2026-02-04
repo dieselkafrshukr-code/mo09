@@ -165,27 +165,65 @@ async function loadProducts() {
     }
 }
 
+let currentProductInModal = null;
+let selectedSize = 'صغير';
+
+// Logic for Product Details
+window.openProductDetail = (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    currentProductInModal = product;
+    selectedSize = 'صغير'; // Reset to default
+
+    document.getElementById('modal-p-name').innerText = product.name;
+    document.getElementById('modal-p-desc').innerText = product.desc || 'وصف لذيذ لهذا المنتج الرائع من مطعمنا.';
+    document.getElementById('modal-p-price').innerText = `${product.price} ج.م`;
+    document.getElementById('modal-p-image').src = product.image;
+
+    // Reset size buttons
+    document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.size-btn:first-child').classList.add('active');
+
+    document.getElementById('product-modal').style.display = 'flex';
+};
+
+window.closeProductModal = () => {
+    document.getElementById('product-modal').style.display = 'none';
+};
+
+window.selectSize = (size, btn) => {
+    selectedSize = size;
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+};
+
+window.addToCartFromModal = () => {
+    if (currentProductInModal) {
+        addToCart(currentProductInModal.id, selectedSize);
+        closeProductModal();
+    }
+};
+
 function renderProducts(productsToRender) {
     productsContainer.innerHTML = '';
     productsToRender.forEach(product => {
-        productsContainer.innerHTML += `
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300?text=Food'">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">${product.category}</div>
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-desc">${product.desc}</p>
-                    <div class="product-footer">
-                        <span class="product-price">${product.price} ج.م</span>
-                        <button class="add-to-cart" onclick="addToCart('${product.id}', event)">
-                            <i class="fas fa-plus"></i> أضف للسلة
-                        </button>
-                    </div>
+        const card = document.createElement('div');
+        card.className = 'product-card animate-on-scroll';
+        card.innerHTML = `
+            <div class="product-img" onclick="openProductDetail('${product.id}')">
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop'">
+                <div class="product-overlay">
+                    <span>تفاصيل المنتج <i class="fas fa-eye"></i></span>
                 </div>
             </div>
+            <div class="product-info">
+                <h3>${product.name}</h3>
+                <p>${product.price} ج.م</p>
+                <button class="add-btn" onclick="openProductDetail('${product.id}')">اطلب الآن <i class="fas fa-plus"></i></button>
+            </div>
         `;
+        productsContainer.appendChild(card);
     });
 }
 

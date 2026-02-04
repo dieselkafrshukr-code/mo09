@@ -170,6 +170,115 @@ nav.scrolled {
     color: var(--primary-color);
 }
 
+/* Glassmorphism & Luxury Modals */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.product-detail-card {
+    background: linear-gradient(145deg, #1e1e1e, #121212);
+    border: 1px solid rgba(212, 163, 115, 0.2);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.product-detail-flex {
+    display: flex;
+    gap: 30px;
+}
+
+.product-detail-img img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.product-detail-info {
+    flex: 1;
+    color: #fff;
+    text-align: right;
+}
+
+.size-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.size-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 163, 115, 0.3);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.size-btn.active,
+.size-btn:hover {
+    background: var(--primary-color);
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+.price-action {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .product-detail-flex {
+        flex-direction: column;
+    }
+
+    .product-detail-img img {
+        width: 100%;
+        height: 200px;
+    }
+}
+
 /* Categories */
 .categories {
     padding: 5rem 10%;

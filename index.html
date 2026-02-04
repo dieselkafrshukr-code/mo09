@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مطعمنا - أشهى المأكولات</title>
-    <meta name="description" content="اطلب أفضل المأكولات والمشروبات من مطعمنا مباشرة عبر واتساب. منيو متنوع وجودة عالية.">
-    
+    <meta name="description"
+        content="اطلب أفضل المأكولات والمشروبات من مطعمنا مباشرة عبر واتساب. منيو متنوع وجودة عالية.">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
     <!-- Header / Navigation -->
     <nav id="navbar">
         <a href="#" class="logo">RESTAURANT</a>
-        
+
         <ul class="nav-links">
             <li><a href="#hero">الرئيسية</a></li>
             <li><a href="#menu">المنيو</a></li>
@@ -44,7 +47,7 @@
     <!-- Menu Section -->
     <section class="categories" id="menu">
         <h2 class="section-title">قائمة الطعام</h2>
-        
+
         <div class="category-list" id="category-filters">
             <button class="category-btn active" data-filter="all">الكل</button>
             <!-- Categories will be loaded here dynamicly -->
@@ -56,6 +59,35 @@
         </div>
     </section>
 
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content product-detail-card" style="max-width: 600px;">
+            <button class="close-modal" onclick="closeProductModal()">&times;</button>
+            <div class="product-detail-flex">
+                <div class="product-detail-img">
+                    <img id="modal-p-image" src="" alt="">
+                </div>
+                <div class="product-detail-info">
+                    <h2 id="modal-p-name"></h2>
+                    <p id="modal-p-desc" class="p-desc"></p>
+                    <div class="variant-section" id="size-selection">
+                        <label>اختر المقاس:</label>
+                        <div class="size-options">
+                            <button class="size-btn active" onclick="selectSize('صغير', this)">صغير</button>
+                            <button class="size-btn" onclick="selectSize('وسط', this)">وسط</button>
+                            <button class="size-btn" onclick="selectSize('كبير', this)">كبير</button>
+                        </div>
+                    </div>
+                    <div class="price-action">
+                        <span id="modal-p-price" class="p-price"></span>
+                        <button class="add-to-cart-btn" onclick="addToCartFromModal()">إضافة للسلة <i
+                                class="fas fa-shopping-basket"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Cart Modal -->
     <div class="cart-modal" id="cart-modal">
         <div class="cart-content">
@@ -63,7 +95,7 @@
                 <h3>سلة المشتريات</h3>
                 <button class="icon-btn" id="close-cart" style="color: black;"><i class="fas fa-times"></i></button>
             </div>
-            
+
             <div class="cart-items" id="cart-items-container">
                 <!-- Cart items will be loaded here -->
                 <p style="text-align: center; margin-top: 2rem;">السلة فارغة</p>
@@ -104,4 +136,5 @@
         });
     </script>
 </body>
+
 </html>
