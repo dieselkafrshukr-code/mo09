@@ -51,13 +51,38 @@ window.showTab = (tabName) => {
     event.currentTarget.classList.add('active');
 };
 
-// Stats Calculation
-function updateStats() {
-    document.getElementById('stats-total-products').innerText = allProducts.length;
-    document.getElementById('stats-main-courses').innerText = allProducts.filter(p => p.category === 'وجبات رئيسية').length;
-    document.getElementById('stats-drinks').innerText = allProducts.filter(p => p.category === 'مشروبات').length;
-    document.getElementById('stats-desserts').innerText = allProducts.filter(p => p.category === 'حلويات').length;
-}
+// Modal Logic
+window.openProductModal = (id = null) => {
+    const modal = document.getElementById('product-modal');
+    const form = document.getElementById('product-form');
+    const title = document.getElementById('modal-title');
+    form.reset();
+    document.getElementById('p-id').value = '';
+    document.getElementById('upload-status').innerText = '';
+
+    if (id) {
+        title.innerText = 'تعديل المنتج';
+        const p = allProducts.find(p => p.id === id);
+        document.getElementById('p-id').value = p.id;
+        document.getElementById('p-name').value = p.name;
+        document.getElementById('p-category').value = p.category;
+        document.getElementById('p-price').value = p.price;
+        document.getElementById('p-desc').value = p.description || '';
+        document.getElementById('p-available').checked = p.available !== false;
+    } else {
+        title.innerText = 'إضافة منتج جديد';
+    }
+    modal.style.display = 'flex';
+    updateCategorySelect(); // Ensure select is fresh
+};
+
+window.openCategoryModal = () => {
+    document.getElementById('category-modal').style.display = 'flex';
+};
+
+window.closeModal = (modalId) => {
+    document.getElementById(modalId).style.display = 'none';
+};
 
 // Categories Management
 async function loadAdminCategories() {
@@ -70,12 +95,13 @@ async function loadAdminCategories() {
 
 function renderAdminCategories() {
     const list = document.getElementById('admin-categories-list');
+    if (!list) return;
     list.innerHTML = '';
     allCategories.forEach(cat => {
         list.innerHTML += `
             <tr>
                 <td>${cat.name}</td>
-                <td>
+                <td class="action-btns">
                     <button class="icon-btn delete" onclick="deleteCategory('${cat.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
@@ -85,17 +111,43 @@ function renderAdminCategories() {
 
 function updateCategorySelect() {
     const select = document.getElementById('p-category');
+    if (!select) return;
+    const currentVal = select.value;
     select.innerHTML = '<option value="">اختر القسم</option>';
+
+    // Default categories that should always be there
     const defaultCats = ['وجبات رئيسية', 'مقبلات', 'مشروبات', 'حلويات'];
-    defaultCats.forEach(catName => {
-        select.innerHTML += `<option value="${catName}">${catName}</option>`;
+    defaultCats.forEach(name => {
+        select.innerHTML += `<option value="${name}">${name}</option>`;
     });
+
+    // Custom categories from DB
     allCategories.forEach(cat => {
         if (!defaultCats.includes(cat.name)) {
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
         }
     });
+
+    if (currentVal) select.value = currentVal;
 }
+
+document.getElementById('category-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('cat-name').value;
+    try {
+        await db.collection('categories').add({ name });
+        closeModal('category-modal');
+        e.target.reset();
+    } catch (error) {
+        alert("خطأ في إضافة القسم: " + error.message);
+    }
+});
+
+window.deleteCategory = async (id) => {
+    if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+        await db.collection('categories').doc(id).delete();
+    }
+};
 
 // Products Management
 async function loadAdminProducts() {
@@ -108,6 +160,7 @@ async function loadAdminProducts() {
 
 function renderAdminProducts() {
     const list = document.getElementById('admin-products-list');
+    if (!list) return;
     list.innerHTML = '';
     allProducts.forEach(p => {
         list.innerHTML += `
@@ -116,89 +169,32 @@ function renderAdminProducts() {
                 <td>${p.name}</td>
                 <td>${p.price} ج.م</td>
                 <td>${p.category}</td>
-                <td><span class="status-badge ${p.available ? 'status-delivered' : 'status-new'}">${p.available ? 'متوفر' : 'غير متوفر'}</span></td>
-                <td>
-                    <div class="action-btns">
-                        <button class="icon-btn edit" onclick="openProductModal('${p.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
+                <td><span class="status-badge ${p.available !== false ? 'status-delivered' : 'status-preparing'}">${p.available !== false ? 'متوفر' : 'غير متوفر'}</span></td>
+                <td class="action-btns">
+                    <button class="icon-btn edit" onclick="openProductModal('${p.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `;
     });
 }
 
-// Orders Management
-async function loadAdminOrders() {
-    db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-        const list = document.getElementById('admin-orders-list');
-        list.innerHTML = '';
-        snapshot.docs.forEach(doc => {
-            const order = doc.data();
-            const date = order.createdAt ? order.createdAt.toDate().toLocaleString('ar-EG') : 'قيد الانتظار';
-            list.innerHTML += `
-                <tr>
-                    <td>#${doc.id.substring(0, 6)}</td>
-                    <td>${order.customer_name}</td>
-                    <td>${order.total_price} ج.م</td>
-                    <td>${date}</td>
-                    <td><span class="status-badge ${getStatusClass(order.status)}">${order.status}</span></td>
-                    <td>
-                        <select onchange="updateOrderStatus('${doc.id}', this.value)" style="background:#000; color:#fff; border:1px solid #333; padding:5px; border-radius:5px;">
-                            <option value="جديد" ${order.status === 'جديد' ? 'selected' : ''}>جديد</option>
-                            <option value="جاري التحضير" ${order.status === 'جاري التحضير' ? 'selected' : ''}>جاري التحضير</option>
-                            <option value="تم التسليم" ${order.status === 'تم التسليم' ? 'selected' : ''}>تم التسليم</option>
-                        </select>
-                    </td>
-                </tr>
-            `;
-        });
-    });
-}
-
-function getStatusClass(status) {
-    if (status === 'جديد') return 'status-new';
-    if (status === 'جاري التحضير') return 'status-preparing';
-    return 'status-delivered';
-}
-
-// Actions
-window.openProductModal = (id = null) => {
-    const modal = document.getElementById('product-modal');
-    const form = document.getElementById('product-form');
-    document.getElementById('modal-title').innerText = id ? 'تعديل منتج' : 'إضافة منتج جديد';
-
-    if (id) {
-        const p = allProducts.find(x => x.id === id);
-        document.getElementById('p-id').value = p.id;
-        document.getElementById('p-name').value = p.name;
-        document.getElementById('p-category').value = p.category;
-        document.getElementById('p-price').value = p.price;
-        document.getElementById('p-desc').value = p.desc;
-        document.getElementById('p-available').checked = p.available;
-    } else {
-        form.reset();
-        document.getElementById('p-id').value = '';
-    }
-    document.getElementById('p-image-file').value = "";
-    document.getElementById('upload-status').innerText = "";
-    modal.style.display = 'flex';
-};
-
-window.closeModal = (modalId) => {
-    document.getElementById(modalId).style.display = 'none';
-};
-
 document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('p-id').value;
+    const name = document.getElementById('p-name').value;
+    const category = document.getElementById('p-category').value;
+    const price = document.getElementById('p-price').value;
+    const desc = document.getElementById('p-desc').value;
+    const available = document.getElementById('p-available').checked;
     const fileInput = document.getElementById('p-image-file');
     const statusText = document.getElementById('upload-status');
-    let imageUrl = "";
+
+    let imageUrl = '';
 
     if (id) {
-        const existingProduct = allProducts.find(p => p.id === id);
-        imageUrl = existingProduct.image;
+        const existing = allProducts.find(p => p.id === id);
+        imageUrl = existing.image;
     }
 
     try {
@@ -207,7 +203,6 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
             const storageRef = storage.ref(`products/${Date.now()}_${file.name}`);
             const uploadTask = storageRef.put(file);
 
-            // نراقب عملية الرفع ونرسم النسبة المئوية
             await new Promise((resolve, reject) => {
                 uploadTask.on('state_changed',
                     (snapshot) => {
@@ -215,13 +210,11 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
                         statusText.innerText = `جاري الرفع... ${Math.round(progress)}%`;
                     },
                     (error) => {
-                        console.error("Storage Error:", error);
-                        alert("خطأ في السيرفر: " + error.message);
+                        alert("خطأ في رفع الصورة: " + error.message);
                         reject(error);
                     },
                     async () => {
                         imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
-                        statusText.innerText = "تم الرفع بنجاح!";
                         resolve();
                     }
                 );
@@ -229,71 +222,86 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
         }
 
         if (!imageUrl && !id) {
-            alert("الرجاء اختيار صورة");
+            alert("يرجى اختيار صورة للمنتج الجديد");
             return;
         }
 
-        const data = {
-            name: document.getElementById('p-name').value,
-            category: document.getElementById('p-category').value,
-            price: parseFloat(document.getElementById('p-price').value),
+        const productData = {
+            name,
+            category,
+            price: parseFloat(price),
+            description: desc,
+            available: available,
             image: imageUrl,
-            desc: document.getElementById('p-desc').value,
-            available: document.getElementById('p-available').checked,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         if (id) {
-            await db.collection('products').doc(id).update(data);
+            await db.collection('products').doc(id).update(productData);
         } else {
-            await db.collection('products').add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('products').add(productData);
         }
+
         closeModal('product-modal');
     } catch (error) {
-        statusText.innerText = "خطأ: " + error.message;
+        alert("خطأ في حفظ المنتج: " + error.message);
     }
 });
 
 window.deleteProduct = async (id) => {
-    if (confirm('هل أنت متأكد من حذف المنتج؟')) {
+    if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
         await db.collection('products').doc(id).delete();
     }
 };
 
 window.deleteAllProducts = async () => {
-    if (confirm('⚠️ خطر: هل أنت متأكد من حذف جميع المنتجات؟')) {
+    if (confirm('⚠️ خطر: هل أنت متأكد من حذف جميع المنتجات نهائياً؟')) {
         const batch = db.batch();
         allProducts.forEach(p => {
-            const ref = db.collection('products').doc(p.id);
-            batch.delete(ref);
+            batch.delete(db.collection('products').doc(p.id));
         });
         await batch.commit();
         alert('تم حذف جميع المنتجات بنجاح');
     }
 };
 
-window.openCategoryModal = () => {
-    document.getElementById('category-modal').style.display = 'flex';
-};
-
-document.getElementById('category-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('cat-name').value;
-    try {
-        await db.collection('categories').add({ name });
-        closeModal('category-modal');
-        document.getElementById('category-form').reset();
-    } catch (error) {
-        alert("خطأ: " + error.message);
-    }
-});
-
-window.deleteCategory = async (id) => {
-    if (confirm('هل أنت متأكد من حذف القسم؟')) {
-        await db.collection('categories').doc(id).delete();
-    }
-};
+// Orders Management
+async function loadAdminOrders() {
+    db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+        const list = document.getElementById('admin-orders-list');
+        if (!list) return;
+        list.innerHTML = '';
+        snapshot.docs.forEach(doc => {
+            const order = doc.data();
+            list.innerHTML += `
+                <tr>
+                    <td>#${doc.id.slice(-5)}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.total} ج.م</td>
+                    <td>${new Date(order.createdAt?.toDate()).toLocaleString('ar-EG')}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status === 'delivered' ? 'تم التوصيل' : order.status === 'preparing' ? 'جاري التحضير' : 'طلب جديد'}</span></td>
+                    <td>
+                        <select onchange="updateOrderStatus('${doc.id}', this.value)" class="icon-btn" style="background:#111; color:#fff; border:1px solid #333; padding:5px; border-radius:5px;">
+                            <option value="new" ${order.status === 'new' ? 'selected' : ''}>جديد</option>
+                            <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>تحضير</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>توصيل</option>
+                        </select>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
 
 window.updateOrderStatus = async (id, status) => {
     await db.collection('orders').doc(id).update({ status });
 };
+
+// Stats
+function updateStats() {
+    document.getElementById('stats-total-products').innerText = allProducts.length;
+    document.getElementById('stats-main-courses').innerText = allProducts.filter(p => p.category === 'وجبات رئيسية').length;
+    document.getElementById('stats-drinks').innerText = allProducts.filter(p => p.category === 'مشروبات').length;
+    document.getElementById('stats-desserts').innerText = allProducts.filter(p => p.category === 'حلويات').length;
+}
